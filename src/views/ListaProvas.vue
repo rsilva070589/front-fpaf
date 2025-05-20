@@ -1,9 +1,10 @@
 <template>
+  
   <div
     v-if="store.listaSelecionada == null"
     style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 20px;">
     <div style="max-width: 600px; width: 100%;">
-      <div style="font-size: 25px; text-align: center; margin-bottom: 20px;">Lista de Provas</div>
+      <div style="font-size: 25px; text-align: center; margin-bottom: 20px;">Lista de Provas: {{props.tipo}}</div>
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; cursor: default;">
         <div 
           v-for="(p, index) in distinctProvas" 
