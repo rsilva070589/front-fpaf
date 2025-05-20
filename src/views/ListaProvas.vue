@@ -27,49 +27,59 @@ import axios from 'axios';
 import Ranking from './Ranking.vue';
 import { useStore } from '@/stores/store'
 
+// ⬇️ Prop recebida
+const props = defineProps({
+  tipo: String
+});
+
+
 const store = useStore()  
-
-store.listaSelecionada = null
-
-// Referências reativas
+store.listaSelecionada = null;
 store.participantes = ref([]);
 const page = ref(1);
-const pageSize = 20;  // Número de participantes por página
+const pageSize = 20;
 const totalPages = ref(1);
 
-// Função para buscar os participantes
-const fetchParticipants = async () => {
-  try {
-    const response = await axios.get((`${store.baseHttp}/ranking`));
-    store.participantes = response.data;  // Dados da resposta da API
-    totalPages.value = Math.ceil(store.participantes.length / pageSize);
-  } catch (error) {
-    console.error('Erro ao buscar participantes:', error);
-  }
-};
+// Participantes filtrados por tipo (INDOOR / OUTDOOR)
+const filteredParticipantes = computed(() =>
+  store.participantes.filter(p => p.classe === props.tipo)
+);
 
-// Lista distinta de provas
-const distinctProvas = computed(() => [...new Set(store.participantes.map(p => p.prova))]);
+// Lista distinta de provas do tipo selecionado
+const distinctProvas = computed(() => [
+  ...new Set(filteredParticipantes.value.map(p => p.prova))
+]);
 
-// Computed para retornar os participantes paginados
+// Participantes paginados (se usar depois)
 const paginatedParticipants = computed(() => {
   const start = (page.value - 1) * pageSize;
   const end = page.value * pageSize;
-  return participants.value.slice(start, end);
+  return filteredParticipantes.value.slice(start, end);
 });
 
-// Função para alterar a página
 const changePage = (newPage) => {
   if (newPage >= 1 && newPage <= totalPages.value) {
     page.value = newPage;
   }
 };
 
-// Buscar os participantes ao montar o componente
+const fetchParticipants = async () => {
+  try {
+    const response = await axios.get((`${store.baseHttp}/ranking`));
+    store.participantes = response.data;
+    totalPages.value = Math.ceil(filteredParticipantes.value.length / pageSize);
+  } catch (error) {
+    console.error('Erro ao buscar participantes:', error);
+  }
+};
+
 onMounted(() => {
+  console.log('Tipo recebido:', props.tipo);
   fetchParticipants();
 });
+
 </script>
+
 
 <style scoped>
 /* Adiciona interatividade ao passar o mouse */

@@ -1,47 +1,73 @@
 <template>
   <div class="app-container">
     <!-- Menu de navegação -->
-    <div class="navbar"> 
-      <div v-for="i in store.navbar" :key="i.cod" @click="store.componente = i.cod">
-        {{ i.descricao }}
+    <div class="navbar">
+      <div
+        v-for="i in store.navbar"
+        :key="i.cod"
+        class="menu-item"
+        @mouseenter="handleMouseEnter(i.cod)"
+        @mouseleave="handleMouseLeave"
+      >
+        <div @click="store.componente = i.cod">
+          {{ i.descricao }}
+        </div>
+
+        <!-- Submenu apenas para RESULTADO DE PROVA -->
+        <div
+          v-if="i.cod === 2 && showSubmenu"
+          class="submenu"
+        >
+          <div @click="selecionarTipo('INDOOR')">INDOOR</div>
+          <div @click="selecionarTipo('OUTDOOR')">OUTDOOR</div>
+        </div>
       </div>
     </div>
 
-    <!-- Exibição dos componentes -->
+    <!-- Componentes exibidos -->
     <UploadFile v-if="store.componente === 1" />
-    <ListaProvas v-if="store.componente === 2" />
+    <ListaProvas v-if="store.componente === 2 && tipoSelecionado" :tipo="tipoSelecionado" />
     <Download v-if="store.componente === 3" />
-
   </div>
 </template>
 
 <script setup>
-import { defineAsyncComponent } from 'vue';
+import { ref, defineAsyncComponent } from 'vue';
 import ListaProvas from './views/ListaProvas.vue';
-import Download from './views/Download.vue'
-
+import Download from './views/Download.vue';
 import { useStore } from '@/stores/store';
 
-
-
-
-// Lazy loading do componente UploadFile
 const UploadFile = defineAsyncComponent(() => import('./views/UploadFile.vue'));
 
-// A store é usada para gerenciar o estado global
 const store = useStore();
 
-// Definindo os itens do menu de navegação
 store.navbar = [
   { cod: 1, descricao: 'UPLOAD' },
-  { cod: 2, descricao: 'INDOOR' },
+  { cod: 2, descricao: 'RESULTADO DE PROVA' },
   { cod: 3, descricao: 'DOWNLOAD' }
 ];
 
-// Inicializando com o componente 1
 store.componente = 1;
-</script>
 
+const showSubmenu = ref(false);
+const tipoSelecionado = ref(null);
+
+function handleMouseEnter(cod) {
+  if (cod === 2) {
+    showSubmenu.value = true;
+  }
+}
+
+function handleMouseLeave() {
+  showSubmenu.value = false;
+}
+
+function selecionarTipo(tipo) {
+  tipoSelecionado.value = tipo;
+  store.componente = 2;
+  showSubmenu.value = false;
+}
+</script>
 
 <style scoped>
 .app-container {
@@ -54,6 +80,10 @@ store.componente = 1;
   align-items: center;
   background-color: #333;
   padding: 10px 0;
+}
+
+.navbar .menu-item {
+  position: relative;
 }
 
 .navbar div {
@@ -73,5 +103,28 @@ store.componente = 1;
 
 .navbar div:active {
   background-color: #666;
+}
+
+/* Submenu personalizado */
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #444;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  margin-top: 5px;
+}
+
+.submenu div {
+  padding: 8px 16px;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.submenu div:hover {
+  background-color: #555;
 }
 </style>
