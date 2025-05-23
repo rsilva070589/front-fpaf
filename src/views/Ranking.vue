@@ -36,8 +36,10 @@
           <td class="col-atleta">{{ participant.atleta }}</td>
 
           <td>{{ participant.equipe }}</td> 
-          <td>0</td>
-          <td>{{ participant.topFive }}</td>
+          <td>{{participant.topFive}}</td>
+          <td>{{ participant.Score1 + participant.Score2 + participant.Score3 + participant.Score4 + participant.Score5 + 
+            participant.Score6 + participant.Score7 + participant.Score8
+           }}</td>
 
           <td>{{ participant.Score1 }}</td> 
           <td>{{ participant.Score2 }}</td> 

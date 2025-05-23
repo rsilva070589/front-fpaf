@@ -1,21 +1,22 @@
 <template>
   
   <div
-    v-if="store.listaSelecionada == null"
-    style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 20px;">
-    <div style="max-width: 600px; width: 100%;">
-      <div style="font-size: 25px; text-align: center; margin-bottom: 20px;">Lista de Provas: {{props.tipo}}</div>
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; cursor: default;">
-        <div 
-          v-for="(p, index) in distinctProvas" 
-          :key="p" 
-          @click="store.listaSelecionada = p"
-          style="border: 1px solid #ddd; padding: 10px; text-align: center; text-decoration: underline; transition: all 0.3s ease; cursor: pointer;">
-          {{ p }}
-        </div>
+  v-if="store.listaSelecionada == null"
+  style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 20px;">
+  <div style="max-width: 900px; width: 100%;">  <!-- Aumentei de 600px para 900px -->
+    <div style="font-size: 25px; text-align: center; margin-bottom: 20px;">Lista de Provas: {{props.tipo}}</div>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; cursor: default;">
+      <div 
+        v-for="(p, index) in distinctProvas" 
+        :key="p" 
+        @click="store.listaSelecionada = p"
+        style="border: 1px solid #ddd; padding: 10px; text-align: center; text-decoration: underline; transition: all 0.3s ease; cursor: pointer;">
+        {{ p }}
       </div>
     </div>
   </div>
+</div>
+
 
   <div v-if="store.listaSelecionada != null">
     <Ranking />
@@ -47,9 +48,11 @@ const filteredParticipantes = computed(() =>
 );
 
 // Lista distinta de provas do tipo selecionado
-const distinctProvas = computed(() => [
-  ...new Set(filteredParticipantes.value.map(p => p.prova))
-]);
+const distinctProvas = computed(() => {
+  return [...new Set(filteredParticipantes.value.map(p => p.prova))]
+    .sort((a, b) => a.localeCompare(b));
+});
+
 
 // Participantes paginados (se usar depois)
 const paginatedParticipants = computed(() => {
