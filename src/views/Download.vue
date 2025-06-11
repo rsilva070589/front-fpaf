@@ -1,10 +1,18 @@
 <template>
+ 
   <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
     <div class="bg-white shadow-lg rounded-xl p-6 w-full max-w-md">
       <h1 class="text-lg font-semibold text-gray-700 text-center mb-4">Baixar Arquivo de Prova</h1>
       
       <input v-model="codProva" type="text" placeholder="Digite o código da prova"
         class="w-full border rounded-lg px-4 py-2 mb-4 focus:ring focus:ring-blue-300 outline-none" />
+
+        <select v-model="store.tipoCombateSelecionado"
+          class="w-full mb-4 p-2 border border-gray-300 rounded-lg">
+          <option value="PROVA">PROVA COMPLETA</option>
+          <option value="COMBATE">COMBATE</option>
+        </select>
+
 
       <button @click="downloadFile" :disabled="downloading"
         class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400">
@@ -28,6 +36,9 @@ const codProva = ref('');
 const downloading = ref(false);
 const errorMessage = ref('');
  
+store.dadosprovadownload = []
+
+
 const downloadFile = async () => {
   if (!codProva.value) {
     errorMessage.value = "O código da prova é obrigatório!";
@@ -37,23 +48,34 @@ const downloadFile = async () => {
   downloading.value = true;
   errorMessage.value = '';
 
-  store.baseHttp
   try {
-
     const response = await axios.get(`${store.baseHttp}/download?cod_prova=${codProva.value}`);
 
-    
     if (!response.data || response.data.length === 0) {
       throw new Error("Nenhum dado encontrado para esse código de prova.");
     }
 
+    let dados = response.data;
+
+  
+
+    if (store.tipoCombateSelecionado?.toUpperCase().trim() === 'COMBATE') {
+    dados = dados.filter(item => item.combate == 1);
+    }
+
+    store.dadosprovadownload = dados;
+
+    // Removendo a propriedade q
+    const dadosLimpos = dados.map(({ q, ...rest }) => rest);
+
     // Criando a planilha XLSX
-    const ws = XLSX.utils.json_to_sheet(response.data);
+    const ws = XLSX.utils.json_to_sheet(dadosLimpos);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Prova");
 
-    // Gerando o arquivo para download
-    XLSX.writeFile(wb, `prova_${codProva.value}.xlsx`);
+    // Gerando o nome com timestamp (opcional)
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, '');
+    XLSX.writeFile(wb, `prova_${codProva.value}_${store.tipoCombateSelecionado}.xlsx`);
 
   } catch (error) {
     console.error('Erro ao baixar o arquivo:', error);
@@ -62,6 +84,7 @@ const downloadFile = async () => {
     downloading.value = false;
   }
 };
+
 </script>
 
 

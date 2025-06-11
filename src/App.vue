@@ -28,6 +28,7 @@
     <UploadFile v-if="store.componente === 1" />
     <ListaProvas v-if="store.componente === 2 && tipoSelecionado" :tipo="tipoSelecionado" />
     <Download v-if="store.componente === 3" />
+    <Lista v-if="store.componente === 4" />
   </div>
 </template>
 
@@ -35,16 +36,20 @@
 import { ref, defineAsyncComponent } from 'vue';
 import ListaProvas from './views/ListaProvas.vue';
 import Download from './views/Download.vue';
+import Lista from './views/Lista.vue';
 import { useStore } from '@/stores/store';
 
 const UploadFile = defineAsyncComponent(() => import('./views/UploadFile.vue'));
 
 const store = useStore();
 
+store.baseHttp = 'https://api.mapsis.com.br/apiexpress'
+
 store.navbar = [
   { cod: 1, descricao: 'UPLOAD' },
   { cod: 2, descricao: 'RESULTADO DE PROVA' },
-  { cod: 3, descricao: 'DOWNLOAD' }
+  { cod: 3, descricao: 'DOWNLOAD' },
+  { cod: 4, descricao: 'LISTA' }
 ];
 
 store.componente = 1;
@@ -67,6 +72,10 @@ function selecionarTipo(tipo) {
   store.componente = 2;
   showSubmenu.value = false;
 }
+
+
+
+
 </script>
 
 <style scoped>

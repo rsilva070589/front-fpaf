@@ -24,6 +24,7 @@
           <th>6</th>
           <th>7</th>
           <th>8</th>
+          <th>Média</th>
           
           
         </tr>
@@ -49,6 +50,7 @@
           <td>{{ participant.Score6 }}</td> 
           <td>{{ participant.Score7 }}</td> 
           <td>{{ participant.Score8 }}</td> 
+          <td>{{ participant.mediaValida.toFixed() }}</td>
        
         </tr>
       </tbody>
@@ -93,19 +95,30 @@ const store = useStore()
 }
 
 const participantesOrdenados = computed(() => {
-  // Filtra pela prova selecionada
   const filtrados = store.participantes.filter(p => p.prova === store.listaSelecionada);
 
-  // Ordena com base na soma dos 5 maiores scores
   return filtrados
-    .map(p => ({
-      ...p,
-      topFive: topFiveSum(p)
-    }))
-    .sort((a, b) => b.topFive - a.topFive) // Ordem decrescente
+    .map(p => {
+      const scores = [
+        p.Score1, p.Score2, p.Score3, p.Score4,
+        p.Score5, p.Score6, p.Score7, p.Score8
+      ];
+
+      const scoresValidos = scores.filter(s => s != null && s !== 0);
+      const mediaValida = scoresValidos.length > 0
+        ? (scoresValidos.reduce((acc, val) => acc + val, 0) / scoresValidos.length)
+        : 0;
+
+      return {
+        ...p,
+        topFive: topFiveSum(p),
+        mediaValida: mediaValida
+      };
+    })
+    .sort((a, b) => b.topFive - a.topFive)
     .map((p, index) => ({
       ...p,
-      Categoria_Rank: index + 1 // Posição (rank)
+      Categoria_Rank: index + 1
     }));
 });
 
