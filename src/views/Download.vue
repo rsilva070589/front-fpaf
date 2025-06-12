@@ -66,7 +66,10 @@ const downloadFile = async () => {
     store.dadosprovadownload = dados;
 
     // Removendo a propriedade q
-    const dadosLimpos = dados.map(({ q, ...rest }) => rest);
+    const dadosLimpos = dados.map(({ q, ...rest }, index) => ({
+  ...rest,
+  Rank: index + 1
+}));
 
     // Criando a planilha XLSX
     const ws = XLSX.utils.json_to_sheet(dadosLimpos);
