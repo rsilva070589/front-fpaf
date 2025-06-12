@@ -60,7 +60,7 @@
       </div>
 
       <div
-        v-for="(item, index) in  store.listagem"
+        v-for="(item, index) in  paginatedList"
         :key="item.WaID || index"
         class="item-card grid-table"
         :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'"
