@@ -22,7 +22,7 @@
     <div v-if="loading" class="info-message loading-message">Carregando dados...</div>
     <div v-if="errorMessage" class="info-message error-message">{{ errorMessage }}</div>
 
-    <div v-if="filteredList.length" class="control-card control-flex-group">
+    <div v-if="store.listagem.length" class="control-card control-flex-group">
       <div class="control-item">
         <label for="search" class="label-text">Buscar:</label>
         <input
