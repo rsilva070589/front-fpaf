@@ -105,22 +105,26 @@ const participantesOrdenados = computed(() => {
       ];
 
       const scoresValidos = scores.filter(s => s != null && s !== 0);
+      const total = scores.reduce((acc, val) => acc + (val || 0), 0);
       const mediaValida = scoresValidos.length > 0
         ? (scoresValidos.reduce((acc, val) => acc + val, 0) / scoresValidos.length)
         : 0;
 
       return {
         ...p,
+        total,
         topFive: topFiveSum(p),
-        mediaValida: mediaValida
+        mediaValida
       };
     })
+    .filter(p => p.total > 0) // ⬅️ Exclui os que têm total igual a 0
     .sort((a, b) => b.topFive - a.topFive)
     .map((p, index) => ({
       ...p,
       Categoria_Rank: index + 1
     }));
 });
+
 
   
   

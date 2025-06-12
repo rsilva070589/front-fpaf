@@ -12,7 +12,7 @@
 
       <!-- Componente reutilizável para cada grupo -->
       <div v-for="(grupo, nomeGrupo) in {
-        'BAREBOW': provasBarebow,
+        'BAREBOWL': provasBarebow,
         'COMPOSTO': provasComposto,
         'RECURVO': provasRecurvo,
         'PARAOLÍMPICO': provasParaolimpico
@@ -56,28 +56,37 @@ const props = defineProps({
 const store = useStore();
 store.listaSelecionada = null;
 
-const getDistinctProvasPorTipo = (tipo) => {
+const getDistinctProvasPorTipo = (tipoProva) => {
   return [...new Set(
     store.participantes
-      .filter(p => p.prova?.toUpperCase().includes(tipo))
+      .filter(p => 
+        p.prova?.toUpperCase().includes(tipoProva.toUpperCase()) &&
+        p.classe === props.tipo
+      )
       .map(p => p.prova)
   )].sort((a, b) => a.localeCompare(b));
 };
 
+
 // Provas por tipo
-const provasBarebow = computed(() => getDistinctProvasPorTipo("BAREBOW"));
+const provasBarebow = computed(() => getDistinctProvasPorTipo("BAREBOWL"));
 const provasComposto = computed(() => getDistinctProvasPorTipo("COMPOSTO"));
 const provasRecurvo = computed(() => getDistinctProvasPorTipo("RECURVO"));
 
 // Provas que NÃO são Barebow, Composto nem Recurvo
 const provasParaolimpico = computed(() => {
-  const conhecidos = [...provasBarebow.value, ...provasComposto.value, ...provasRecurvo.value];
-  const todasProvas = store.participantes.map(p => p.prova);
-  const unicas = [...new Set(todasProvas)];
-  return unicas
-    .filter(p => !conhecidos.includes(p))
+  const todos = filteredParticipantes.value.map(p => p.prova?.trim()).filter(Boolean);
+  const conhecidos = new Set([
+    ...provasBarebow.value,
+    ...provasComposto.value,
+    ...provasRecurvo.value
+  ]);
+
+  return [...new Set(todos)]
+    .filter(p => !conhecidos.has(p))
     .sort((a, b) => a.localeCompare(b));
 });
+
  
 store.listaSelecionada = null;
 store.participantes = ref([]);

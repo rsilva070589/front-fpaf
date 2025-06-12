@@ -49,7 +49,7 @@ store.navbar = [
   { cod: 1, descricao: 'UPLOAD' },
   { cod: 2, descricao: 'RESULTADO DE PROVA' },
   { cod: 3, descricao: 'DOWNLOAD' },
-  { cod: 4, descricao: 'LISTA' }
+  { cod: 4, descricao: 'LISTA COMBATE' }
 ];
 
 store.componente = 1;
