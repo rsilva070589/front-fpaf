@@ -66,10 +66,20 @@ const downloadFile = async () => {
     store.dadosprovadownload = dados;
 
     // Removendo a propriedade q
-    const dadosLimpos = dados.map(({ q, ...rest }, index) => ({
-  ...rest,
-  Rank: index + 1
-}));
+    const dadosAgrupados = dados.reduce((acc, item) => {
+        const key = item.DivisionClass;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(item);
+        return acc;
+      }, {});
+
+      const dadosLimpos = Object.values(dadosAgrupados).flatMap(grupo => {
+        return grupo.map(({ q, ...rest }, index) => ({
+          ...rest,
+          Rank: index + 1
+        }));
+      });
+
 
     // Criando a planilha XLSX
     const ws = XLSX.utils.json_to_sheet(dadosLimpos);
@@ -89,8 +99,6 @@ const downloadFile = async () => {
 };
 
 </script>
-
-
 
 
 
