@@ -1,5 +1,6 @@
 <template>
   <button @click="store.listaSelecionada = null">voltar</button>
+  
 
   <div style="display: flex; justify-content: center; align-items: flex-start; width: 100%;">
     <div style="max-width: 600px; width: 100%; margin-left: -250px;">
@@ -152,7 +153,6 @@ const shouldHighlightScore = (participant, scoreNumber, globalHighlightIndex) =>
 // Computed property for filtered and ordered participants
 const participantesOrdenados = computed(() => {
   const filtrados = store.participantes.filter(p => p.prova === store.listaSelecionada);
-
   return filtrados
     .map(p => {
       const scores = [

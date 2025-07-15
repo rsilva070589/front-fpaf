@@ -88,7 +88,7 @@ const uploadFiles = async () => {
     return;
   }
 
-  let data = new FormData();
+  const data = new FormData();
 
   // Adiciona os arquivos
   files.value.forEach((file) => {
@@ -102,23 +102,34 @@ const uploadFiles = async () => {
 
   try {
     uploading.value = true;
-    const response = await axios.post(`${store.baseHttp}/fpafupload`,
-     data, {
-      headers: { "Content-Type": "multipart/form-data" },
+    progress.value = 0;
+
+    const response = await axios.post(`${store.baseHttp}/fpafupload`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      },
       onUploadProgress: (event) => {
         if (event.lengthComputable) {
           progress.value = Math.round((event.loaded / event.total) * 100);
         }
-      },
+      }
     });
 
-    console.log("Upload bem-sucedido:", response.data);
-    processedItems.value = response.data.processedItems; // Assumindo que a API retorna esse valor
-    alert("Upload concluído com sucesso!");
-    
-    // Limpa os campos após o envio
+    const { inseridas, ignoradas, message } = response.data;
+
+    processedItems.value = inseridas;
+
+    alert(
+      `Upload concluído!\n\n` +
+      `${inseridas} linha(s) inserida(s).\n` +
+      `${ignoradas} já existiam e foram ignoradas.`
+    );
+
+    // Limpa o formulário e os arquivos
     Object.keys(formData).forEach((key) => (formData[key] = ""));
     files.value = [];
+    progress.value = 0;
+
   } catch (error) {
     console.error("Erro no upload:", error);
     alert("Ocorreu um erro ao enviar os arquivos.");
@@ -126,6 +137,7 @@ const uploadFiles = async () => {
     uploading.value = false;
   }
 };
+
 </script>
 
 
