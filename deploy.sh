@@ -14,7 +14,7 @@ git commit -m "versao final"
  
  
 git branch -M main
-git remote add origin https://github.com/rsilva070589/front-fpaf.git
+git remote add origin https://github.com/FPAF/ranking.git
 
 git push -f origin main
  

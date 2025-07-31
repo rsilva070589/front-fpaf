@@ -1,51 +1,7 @@
 <template>
-  <div class="app-container">
-    <!-- Menu de navegação -->
-    <div class="navbar">
-      <div
-        v-for="i in store.navbar"
-        :key="i.cod"
-        class="menu-item"
-        @mouseenter="handleMouseEnter(i.cod)"
-        @mouseleave="handleMouseLeave"
-      >
-        <div @click="store.componente = i.cod">
-          {{ i.descricao }}
-        </div>
-
-        <!-- Submenu para RESULTADO DE PROVA -->
-        <div v-if="i.cod === 2 && showSubmenu" class="submenu">
-          <!-- Etapa 1: Escolher tipo -->
-          <template v-if="!exibirAnos">
-            <div @click="selecionarTipo('INDOOR')">INDOOR</div>
-            <div @click="selecionarTipo('OUTDOOR')">OUTDOOR</div>
-          </template>
-
-          <!-- Etapa 2: Escolher ano -->
-          <template v-else>
-            <div
-              v-for="ano in anosDisponiveis"
-              :key="ano"
-              @click="selecionarAno(ano)"
-            >
-              {{ ano }}
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <!-- Componentes exibidos -->
-    <UploadFile v-if="store.componente === 1" />
-    <ListaProvas
-      v-if="store.componente === 2 && tipoSelecionado && anoSelecionado"
-      :tipo="tipoSelecionado"
-      :ano="anoSelecionado"
-    />
-    <Download v-if="store.componente === 3" />
-    <Lista v-if="store.componente === 4" />
-  </div>
+  <router-view />
 </template>
+
 
 <script setup>
 import { ref, defineAsyncComponent } from 'vue';
@@ -165,3 +121,12 @@ function selecionarAno(ano) {
   background-color: #555;
 }
 </style>
+<style>
+/* Escopo global */
+body {
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background: #f5f5f5;
+}
+</style>
+ 
