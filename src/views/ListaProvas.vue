@@ -1,4 +1,7 @@
 <template>
+  {{ props }}
+ 
+
   <div v-if="store.listaSelecionada == null" class="lista-container">
     <div class="lista-wrapper">
       <h2 class="titulo-lista">Lista de Provas {{ props.ano }}</h2>
@@ -31,7 +34,7 @@
   </div>
 </template>
 
- <script setup>
+<script setup>
   import { ref, computed, onMounted } from 'vue';
   import axios from 'axios';
   import Ranking from './Ranking.vue';
@@ -42,26 +45,30 @@
     tipo: String,
     ano: Number
   });
- 
+  
 
 
   const store = useStore();
   store.listaSelecionada = null;
-  store.participantes = ref([]);
+  store.participantes = [];
  
-store.baseHttp = 'https://api.mapsis.com.br/apiexpress';
+  store.baseHttp = 'https://api.mapsis.com.br/apiexpress';
 
   const page = ref(1);
   const pageSize = 20;
   const totalPages = ref(1);
 
   // ✅ Filtra participantes por tipo E ano
-  const filteredParticipantes = computed(() =>
-    store.participantes.filter(p =>
-      p.classe === props.tipo 
-      &&  p.ano_integracao === Number(props.ano)
-    )
+  const filteredParticipantes = computed(() => {
+  const tipo = props.tipo?.toUpperCase();
+  const ano = Number(props.ano);
+
+  return (store.participantes || []).filter(p =>
+    p.classe?.toUpperCase() === tipo &&
+    Number(p.ano_integracao) === ano
   );
+});
+
 
   // ✅ Função para obter provas distintas por tipo de prova
   const getDistinctProvasPorTipo = (tipoProva) => {
@@ -76,7 +83,6 @@ store.baseHttp = 'https://api.mapsis.com.br/apiexpress';
   const provasBarebow = computed(() => getDistinctProvasPorTipo("BAREBOWL"));
   const provasComposto = computed(() => getDistinctProvasPorTipo("COMPOSTO"));
   const provasRecurvo = computed(() => getDistinctProvasPorTipo("RECURVO"));
-
   const provasParaolimpico = computed(() => {
     const todos = filteredParticipantes.value.map(p => p.prova?.trim()).filter(Boolean);
     const conhecidos = new Set([
@@ -90,18 +96,6 @@ store.baseHttp = 'https://api.mapsis.com.br/apiexpress';
       .sort((a, b) => a.localeCompare(b));
   });
 
-  // 🔄 Participantes paginados (caso use depois)
-  const paginatedParticipants = computed(() => {
-    const start = (page.value - 1) * pageSize;
-    const end = page.value * pageSize;
-    return filteredParticipantes.value.slice(start, end);
-  });
-
-  const changePage = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages.value) {
-      page.value = newPage;
-    }
-  };
 
   const fetchParticipants = async () => {
   try {
@@ -115,10 +109,17 @@ store.baseHttp = 'https://api.mapsis.com.br/apiexpress';
 };
 
 
-  onMounted(() => {
-    console.log('Tipo:', props.tipo, '| Ano:', props.ano);
-    fetchParticipants();
+onMounted(() => {
+  console.log('Tipo da URL:', props.tipo, '| Ano:', props.ano);
+  fetchParticipants().then(() => {
+    console.log('Filtrados:', filteredParticipantes.value);
+    console.log('Barebow:', provasBarebow.value);
+    console.log('Composto:', provasComposto.value);
+    console.log('Recurvo:', provasRecurvo.value);
+    console.log('Paraolímpico:', provasParaolimpico.value);
   });
+});
+
 </script>
 
  
@@ -137,7 +138,6 @@ store.baseHttp = 'https://api.mapsis.com.br/apiexpress';
    text-decoration: none; /* Remove o sublinhado */
  }
  </style>
-
 
 <style scoped>
 .lista-container {
@@ -224,6 +224,7 @@ store.baseHttp = 'https://api.mapsis.com.br/apiexpress';
 }
 
 </style>
+
 <style scoped>
 .ranking-container {
   max-width: 900px;

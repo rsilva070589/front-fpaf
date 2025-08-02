@@ -15,15 +15,8 @@ const UploadFile = defineAsyncComponent(() => import('./views/UploadFile.vue'));
 const store = useStore();
 
 store.baseHttp = 'https://api.mapsis.com.br/apiexpress';
-
-store.navbar = [
-  { cod: 1, descricao: 'UPLOAD' },
-  { cod: 2, descricao: 'RESULTADO DE PROVA' },
-  { cod: 3, descricao: 'DOWNLOAD' },
-  { cod: 4, descricao: 'LISTA COMBATE' }
-];
-
-store.componente = 1;
+ 
+store.componente = 2;
 
 const showSubmenu = ref(false);
 const tipoSelecionado = ref(null);
@@ -37,29 +30,7 @@ const anosDisponiveis = Array.from(
   (_, i) => anoInicial + i
 );
 
-function handleMouseEnter(cod) {
-  if (cod === 2) {
-    showSubmenu.value = true;
-  }
-}
-
-function handleMouseLeave() {
-  showSubmenu.value = false;
-  exibirAnos.value = false;
-}
-
-function selecionarTipo(tipo) {
-  tipoSelecionado.value = tipo;
-  anoSelecionado.value = null;
-  exibirAnos.value = true;
-}
-
-function selecionarAno(ano) {
-  anoSelecionado.value = ano;
-  store.componente = 2;
-  showSubmenu.value = false;
-  exibirAnos.value = false;
-}
+ 
 </script>
 
 <style scoped>
