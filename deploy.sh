@@ -3,8 +3,8 @@ npm run build
 
 git init 
 
-git config --global user.email "rsilva070589@gmail.com"
-git config --global user.name "rsilva070589"
+git config --global user.email "presidente@fpaf.esp.br"
+git config --global user.name "10201014ma"
 
 
 git add .
