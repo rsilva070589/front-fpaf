@@ -1,10 +1,16 @@
 <template>  
  
+
+
   <div
    v-if="store.listaSelecionada == null"
    style="display: flex; justify-content: center; align-items: flex-start; width: 100%; margin-top: 20px;"
  >
+
    <div style="max-width: 1200px; width: 100%;">
+    <button @click="exportAllToExcel" style="cursor: pointer;">
+  Exportar Rankings 📊
+</button>
      <div style="font-size: 25px; text-align: center; margin-bottom: 20px;">Lista de Provas {{ props.ano }}</div>
  
      <!-- Grid com 4 colunas: BAREBOW | COMPOSTO | RECURVO | PARAOLÍMPICO -->
@@ -41,11 +47,15 @@
      <Ranking />
    </div>
  </template>
+
+ 
  <script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import Ranking from './Ranking.vue';
 import { useStore } from '@/stores/store';
+import { utils, writeFile } from 'xlsx'; // 💡 Adicione esta linha
+
 
 // ⬇️ Props recebidas
 const props = defineProps({
@@ -123,6 +133,120 @@ onMounted(() => {
   console.log('Tipo:', props.tipo, '| Ano:', props.ano);
   fetchParticipants();
 });
+
+
+
+// 🚀 Nova função para exportar todas as provas para Excel
+// ListaProvas.vue: Dentro do 
+
+ 
+async function exportAllToExcel() {
+  if (store.participantes.length === 0) {
+    alert("Dados não carregados. Tente novamente.");
+    return;
+  }
+
+  const grupos = {
+    'BAREBOWL': provasBarebow.value,
+    'COMPOSTO': provasComposto.value,
+    'RECURVO': provasRecurvo.value,
+    'PARAOLÍMPICO': provasParaolimpico.value
+  };
+
+  const allData = [];
+
+  const header = [
+    'Posição', 'Atleta', 'Equipe', '5 Melhores', 'Total', 'Média',
+    'Score 1', 'Score 2', 'Score 3', 'Score 4', 'Score 5',
+    'Score 6', 'Score 7', 'Score 8'
+  ];
+
+  let isFirstProva = true;
+
+  for (const nomeGrupo in grupos) {
+    const provasDoGrupo = grupos[nomeGrupo];
+    
+    for (const nomeProva of provasDoGrupo) {
+      
+      if (!isFirstProva) {
+        allData.push([]); // Linha em branco
+        allData.push([]); // Linha em branco
+        allData.push([]); // Linha em branco
+      }
+      
+      allData.push([`PROVA: ${nomeProva}`]);
+      allData.push([]); // Linha em branco
+      
+      allData.push(header);
+
+      const filtrados = store.participantes.filter(p => p.prova === nomeProva);
+      const participantesComCalculos = filtrados
+        .map(p => {
+          const scores = [
+            p.Score1, p.Score2, p.Score3, p.Score4,
+            p.Score5, p.Score6, p.Score7, p.Score8
+          ];
+          const scoresValidos = scores.filter(s => s != null && s !== 0);
+          const total = scores.reduce((acc, val) => acc + (val || 0), 0);
+          const mediaValida = scoresValidos.length > 0
+            ? (scoresValidos.reduce((acc, val) => acc + val, 0) / scoresValidos.length)
+            : 0;
+
+          return {
+            ...p,
+            total,
+            topFive: topFiveSum(p),
+            mediaValida
+          };
+        })
+        .filter(p => p.total > 0); 
+
+      const participantesOrdenados = participantesComCalculos
+        .sort((a, b) => b.topFive - a.topFive)
+        .map((p, index) => {
+          return [
+            index + 1,
+            p.atleta,
+            p.equipe,
+            p.topFive,
+            p.total,
+            p.mediaValida.toFixed(2),
+            p.Score1, p.Score2, p.Score3, p.Score4, p.Score5,
+            p.Score6, p.Score7, p.Score8
+          ];
+        });
+      
+      allData.push(...participantesOrdenados);
+
+      isFirstProva = false;
+    }
+  }
+
+  const worksheet = utils.aoa_to_sheet(allData);
+  const workbook = utils.book_new();
+  
+  utils.book_append_sheet(workbook, worksheet, 'Ranking Geral');
+
+  writeFile(workbook, `Ranking Geral - ${props.ano}.xlsx`);
+}
+function topFiveSum(participant) {
+  const scores = [
+    participant.Score1,
+    participant.Score2,
+    participant.Score3,
+    participant.Score4,
+    participant.Score5,
+    participant.Score6,
+    participant.Score7,
+    participant.Score8
+  ].filter(s => s != null); // Filter null scores before sorting and summing
+
+  return scores
+    .sort((a, b) => b - a)     // Sort in descending order
+    .slice(0, 5)               // Take the top 5
+    .reduce((acc, val) => acc + val, 0); // Sum
+}
+
 </script>
 
  
